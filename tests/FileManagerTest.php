@@ -69,7 +69,7 @@ class FileManagerTest extends TestCase
      */
     public function testSaveSucessfully()
     {
-        $this->assertTrue($this->_object->save('test', __DIR__.'/_files/upload', 'test'));
+        $this->assertNotEmpty($this->_object->save('test', __DIR__.'/_files/upload', 'test'));
     }
 
     public function testFileNotFound()
@@ -82,7 +82,7 @@ class FileManagerTest extends TestCase
     public function testFileExceededFilesize()
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Exceeded filesize limit.');
+        $this->expectExceptionMessage('Tamanho do arquivo excedido.');
 
         $this->assertTrue($this->_object->save('test_error', __DIR__.'/_files/upload', 'test_error'));
     }
@@ -90,7 +90,7 @@ class FileManagerTest extends TestCase
     public function testFileHasErrorNoFile()
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('No file sent.');
+        $this->expectExceptionMessage('Nenhum arquivo enviado.');
 
         $this->assertTrue($this->_object->save('test_error_2', __DIR__.'/_files/upload', 'test_error'));
     }
@@ -98,7 +98,7 @@ class FileManagerTest extends TestCase
     public function testFileExceededFilesizeDefault()
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Exceeded filesize limit.');
+        $this->expectExceptionMessage('Tamanho do arquivo excedido.');
 
         $this->assertTrue($this->_object->save('test_error_3', __DIR__.'/_files/upload', 'test_error'));
     }
@@ -106,7 +106,7 @@ class FileManagerTest extends TestCase
     public function testFileHasWrongMimeType()
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Invalid file format.');
+        $this->expectExceptionMessage('Formato do arquivo é inválido.');
 
         $this->assertTrue($this->_object->save('test_error_4', __DIR__.'/_files/upload', 'test_error'));
     }
@@ -124,7 +124,7 @@ class FileManagerTest extends TestCase
 
 class FileManagerMock extends FileManager
 {
-    public function moveUploadedFile(string $filename, string $destination)
+    public function moveUploadedFile($filename, $destination)
     {
         return copy($filename, $destination);
     }

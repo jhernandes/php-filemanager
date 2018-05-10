@@ -47,7 +47,7 @@ class FileManager
     public function save($keyName, $path, $filename = null)
     {
         if (!isset($_FILES[$keyName])) {
-            throw new \RuntimeException("File not found!");
+            throw new \RuntimeException("Arquivo não enviado");
         }
 
         $file = $_FILES[$keyName];
@@ -67,10 +67,10 @@ class FileManager
 
         $this->moveUploadedFile($file['tmp_name'], $fullFileName);
 
-        return true;
+        return $fullFileName;
     }
 
-    private function validate($file)
+    public function validate($file)
     {
         $this->checkErrors($file);
         $this->checkFilesizeLimit($file, $this->limit);
@@ -82,19 +82,19 @@ class FileManager
     private function checkErrors($file)
     {
         if (!isset($file['error']) || is_array($file['error'])) {
-            throw new \RuntimeException('Invalid parameters.');
+            throw new \RuntimeException('Parâmetros inválidos!');
         }
 
         switch ($file['error']) {
             case UPLOAD_ERR_OK:
                 break;
             case UPLOAD_ERR_NO_FILE:
-                throw new \RuntimeException('No file sent.');
+                throw new \RuntimeException('Nenhum arquivo enviado.');
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
-                throw new \RuntimeException('Exceeded filesize limit.');
+                throw new \RuntimeException('Tamanho do arquivo excedido.');
             default:
-                throw new \RuntimeException('Unknown errors.');
+                throw new \RuntimeException('Erro não identificado.');
         }
 
         return true;
@@ -103,7 +103,7 @@ class FileManager
     private function checkFilesizeLimit($file, $limit = 2097152)
     {
         if ($file['size'] > $limit) {
-            throw new \RuntimeException('Exceeded filesize limit.');
+            throw new \RuntimeException('Tamanho do arquivo excedido.');
         }
 
         return true;
@@ -117,13 +117,13 @@ class FileManager
             $mimeTypes,
             true
         )) {
-            throw new \RuntimeException('Invalid file format.');
+            throw new \RuntimeException('Formato do arquivo é inválido.');
         }
 
         return true;
     }
 
-    protected function moveUploadedFile(string $filename, string $destination)
+    protected function moveUploadedFile($filename, $destination)
     {
         if (!move_uploaded_file(
             $filename,
@@ -133,5 +133,25 @@ class FileManager
         }
 
         return true;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExtension()
+    {
+        return $this->extension;
+    }
+
+    /**
+     * @param string $extension
+     *
+     * @return self
+     */
+    public function setExtension($extension)
+    {
+        $this->extension = $extension;
+
+        return $this;
     }
 }
