@@ -1,0 +1,26 @@
+{
+    "name": "jhernandes/php-filemanager",
+    "license": "MIT",
+    "type": "library",
+    "description": "Lib para validar arquivo enviado via POST",
+    "keywords": ["file","POST","validador"],
+    "homepage": "https://github.com/jhernandes/php-filemanager",
+    "authors": [
+        {
+            "name": "João Hernandes",
+            "email": "jhernandes@ipag.com.br"
+        }
+    ],
+    "require": {
+        "php": ">=5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "FileManager\\": "src/FileManager"
+        }
+    },
+    "minimum-stability": "dev",
+    "require-dev": {
+        "phpunit/phpunit": "^6.0"
+    }
+}
