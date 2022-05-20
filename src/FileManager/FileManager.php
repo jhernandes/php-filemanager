@@ -2,8 +2,6 @@
 
 namespace FileManager;
 
-use Slim\Http\UploadedFile;
-
 class FileManager
 {
     /**
