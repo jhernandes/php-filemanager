@@ -58,7 +58,7 @@ class FileManager
         $this->validate($uploadedFile);
 
         if (!is_dir($path)) {
-            mkdir($path, 0, true);
+            mkdir($path, 0777, true);
         }
 
         $filename = !is_null($filename) ? $filename : sha1_file($uploadedFile->file);
