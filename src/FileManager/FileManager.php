@@ -51,41 +51,44 @@ class FileManager
         }
 
         $file = $_FILES[$keyName];
+        $uploadedFile = $this->parseUploadedFile($file);
 
-        $this->validate($file);
+        $this->validate($uploadedFile);
 
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
         }
 
-        $filename = !is_null($filename) ? $filename : sha1_file($file['tmp_name']);
+        $filename = !is_null($filename) ? $filename : sha1_file($uploadedFile->file);
         $fullFileName = sprintf('%s/%s.%s',
             $path,
             $filename,
             $this->extension
         );
 
-        $this->moveUploadedFile($file['tmp_name'], $fullFileName);
+        $this->moveUploadedFile($uploadedFile->file, $fullFileName);
 
         return $fullFileName;
     }
 
     public function validate($file)
     {
-        $this->checkErrors($file);
-        $this->checkFilesizeLimit($file, $this->limit);
-        $this->checkMimeType($file, $this->mimeTypes);
+        $uploadedFile = $this->parseUploadedFile($file);
+
+        $this->checkErrors($uploadedFile);
+        $this->checkFilesizeLimit($uploadedFile, $this->limit);
+        $this->checkMimeType($uploadedFile, $this->mimeTypes);
 
         return true;
     }
 
-    private function checkErrors($file)
+    private function checkErrors(UploadedFile $file)
     {
-        if (!isset($file['error']) || is_array($file['error'])) {
+        if (is_array($file->getError())) {
             throw new \RuntimeException('Parâmetros inválidos!');
         }
 
-        switch ($file['error']) {
+        switch ($file->getError()) {
             case UPLOAD_ERR_OK:
                 break;
             case UPLOAD_ERR_NO_FILE:
@@ -100,20 +103,20 @@ class FileManager
         return true;
     }
 
-    private function checkFilesizeLimit($file, $limit = 2097152)
+    private function checkFilesizeLimit(UploadedFile $file, $limit = 2097152)
     {
-        if ($file['size'] > $limit) {
+        if ($file->getSize() > $limit) {
             throw new \RuntimeException('Tamanho do arquivo excedido.');
         }
 
         return true;
     }
 
-    private function checkMimeType($file, array $mimeTypes = array())
+    private function checkMimeType(UploadedFile $file, array $mimeTypes = array())
     {
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
         if (false === $this->extension = array_search(
-            $finfo->file($file['tmp_name']),
+            $finfo->file($file->file),
             $mimeTypes,
             true
         )) {
@@ -133,6 +136,26 @@ class FileManager
         }
 
         return true;
+    }
+
+    /**
+     * @param file|UploadedFile $file
+     * @return UploadedFile
+     */
+    protected function parseUploadedFile($file)
+    {
+        if ($file instanceof UploadedFile) {
+            return $file;
+        }
+
+        return new UploadedFile(
+            $file['tmp_name'],
+            isset($file['name']) ? $file['name'] : null,
+            isset($file['type']) ? $file['type'] : null,
+            isset($file['size']) ? $file['size'] : null,
+            $file['error'],
+            true
+        );
     }
 
     /**
